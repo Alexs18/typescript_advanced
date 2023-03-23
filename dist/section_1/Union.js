@@ -35,7 +35,7 @@ function GetResponse(resp) {
 }
 let simulationapi = {
     data: [10, 20, 30],
-    status: 500,
+    status: 200,
     finish: false,
     event: true
 };
