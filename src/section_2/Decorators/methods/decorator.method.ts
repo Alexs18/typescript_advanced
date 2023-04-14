@@ -20,31 +20,30 @@ interface PRODUCTOS {
     special_price?:      boolean;
 }
 
-function DecoratorforMethod(target:Object, proertyKey:string, descriptor:PropertyDescriptor) {
+/**to use the context this, you need to return a function, event do you need change the propierties
+ * inside to the header function...
+ */
+function DecoratorforMethod() {
     
-    // console.log('la decoracion por el metodo');
-    // console.log(descriptor);
-    
-    let filterds = descriptor.value;
-    descriptor.value = function(code:string) {
-        console.log('the filter');
-        filterds(code);
-        
-        // if (filterds === undefined) {
-        //     return descriptor.value(code);
-        // }
-        // if (filterds.length <= 0) {
-            
-        //     return filterds.special_price = filterds.price > 20? filterds.special_price = false: true;
 
-        // }
-        // return filterds.filter((products:any)=> {
-        //     if (products.price > 20) {
-        //         products.special_price = false
-        //     }
-        //     products.special_price = true
+    return (target:Object, proertyKey:string, descriptor:PropertyDescriptor)=>{
 
-        // })
+        let original = descriptor.value;
+
+        descriptor.value = function (code:string) {
+
+            let ths1 = this as any
+
+            let filterproducts = ths1.Products.filter((producto:any)=> {
+            if (typeof producto.id === 'string') {
+                return producto.id.startsWith(code);
+            }
+            producto.id = producto.id.toString();
+            return producto.id.startsWith(code);
+            }).filter((filterds:any)=> filterds.price > 20);
+
+            return filterproducts
+        }
     }
     
 }
@@ -64,17 +63,11 @@ class Bodega{
         return this.name
     }
 
-    @DecoratorforMethod
-    filterproducts(code:string):PRODUCTOS[] | PRODUCTOS | undefined{
+    @DecoratorforMethod()
+    filterproducts(code:string){
+    // :PRODUCTOS[] | PRODUCTOS | undefined{
 
-        let filterproducts = this.Products.filter((producto)=> {
-            if (typeof producto.id === 'string') {
-                return producto.id.startsWith(code);
-            }
-            producto.id = producto.id.toString();
-            return producto.id.startsWith(code);
-        });
-        return filterproducts;
+        console.log('el producto');
     }
 }
 
@@ -88,6 +81,11 @@ let pro2:PRODUCTOS={
     price:10,
     special_price:true    
 }
+let pro21:PRODUCTOS={
+    id:'003',
+    price:30,
+    special_price:true    
+}
 let pro3:PRODUCTOS={
     id:'032',
     price:25,
@@ -96,7 +94,7 @@ let pro3:PRODUCTOS={
 
 let listproducts:PRODUCTOS[] = []
 
-listproducts.push(pro1, pro2, pro3);
+listproducts.push(pro1, pro2, pro3, pro21);
 
 
 let bodega1 = new Bodega(1, 'BODEGA FINA', listproducts);
